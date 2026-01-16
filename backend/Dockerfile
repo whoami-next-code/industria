@@ -1,12 +1,13 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-COPY package*.json ./
+# Build context esperado: raíz del repo
+COPY backend/package*.json ./
 RUN npm ci
 
-COPY nest-cli.json tsconfig*.json ./
-COPY src ./src
-COPY public ./public
+COPY backend/nest-cli.json backend/tsconfig*.json ./
+COPY backend/src ./src
+COPY backend/public ./public
 
 RUN npm run build
 
@@ -16,7 +17,7 @@ WORKDIR /app
 ENV NODE_ENV=production
 EXPOSE 3001
 
-COPY package*.json ./
+COPY backend/package*.json ./
 RUN npm ci --omit=dev
 
 COPY --from=builder /app/dist ./dist
