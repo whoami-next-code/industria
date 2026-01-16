@@ -4,7 +4,7 @@ COPY package*.json ./
 RUN npm ci
 COPY nest-cli.json tsconfig*.json ./
 COPY src ./src
-COPY public ./public
+*COPY public ./public*
 RUN npm run build
 
 FROM node:20-alpine AS runner
