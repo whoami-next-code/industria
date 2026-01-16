@@ -31,14 +31,23 @@ async function bootstrap() {
     .filter(Boolean);
 
   const isProd = (process.env.NODE_ENV ?? '').toLowerCase() === 'production';
+  
+  // Log CORS configuration for debugging
+  console.log(`[CORS] Environment: ${process.env.NODE_ENV}`);
+  console.log(`[CORS] Allowed Origins: ${corsOriginsEnv.length ? corsOriginsEnv.join(', ') : 'None (Strict Mode)'}`);
+
   app.enableCors({
     origin: (
       origin: string | undefined,
       cb: (err: Error | null, allow?: boolean) => void,
     ) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
       if (!origin) return cb(null, true);
 
-      if (corsOriginsEnv.includes(origin)) return cb(null, true);
+      // Allow if explicitly listed or if wildcard '*' is present
+      if (corsOriginsEnv.includes('*') || corsOriginsEnv.includes(origin)) {
+        return cb(null, true);
+      }
 
       try {
         const url = new URL(origin);
@@ -52,12 +61,16 @@ async function bootstrap() {
           hostname.startsWith('10.') ||
           hostname.startsWith('172.');
 
+        // Allow local network in non-production environments
         if (!isProd && isLocalNetwork) {
           return cb(null, true);
         }
       } catch {}
 
-      return cb(new Error('Not allowed by CORS'));
+      // Log the blocked origin to help debugging
+      console.error(`[CORS] Blocked request from origin: '${origin}'. Allowed origins: ${JSON.stringify(corsOriginsEnv)}`);
+      
+      return cb(new Error(`Not allowed by CORS: ${origin}`));
     },
     credentials: true,
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
