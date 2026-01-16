@@ -9,7 +9,8 @@ COPY src ./src
 
 RUN npm run build
 
-FROM node:20-alpine AS runner
+
+FROM node:20-alpine
 WORKDIR /app
 
 ENV NODE_ENV=production
@@ -20,3 +21,5 @@ RUN npm ci --omit=dev
 COPY --from=builder /app/dist ./dist
 
 USER node
+
+CMD ["node", "dist/src/main.js"]
