@@ -9,7 +9,6 @@ COPY src ./src
 
 RUN npm run build
 
-
 FROM node:20-alpine
 WORKDIR /app
 
@@ -20,6 +19,6 @@ RUN npm ci --omit=dev
 
 COPY --from=builder /app/dist ./dist
 
-USER node
+EXPOSE 3001
 
-CMD ["node", "dist/main.js"]
+CMD ["node", "dist/src/main.js"]
