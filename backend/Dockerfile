@@ -22,4 +22,4 @@ COPY --from=builder /app/dist ./dist
 
 USER node
 
-CMD ["node", "dist/src/main.js"]
+CMD ["node", "dist/main.js"]
